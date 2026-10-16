@@ -1,3 +1,23 @@
+# 知己 · 健康手记
+
+Private Oura dashboard with encrypted per-user health records, date-based metric views, trends, cloud journal, editable personal context and a server-side OpenAI Responses chat endpoint.
+
+## Runtime configuration
+
+- `DATA_ENCRYPTION_KEY`: existing 32-byte AES-GCM key, managed as a Sites secret. Preserve it across deployments; rotating it requires data migration.
+- `OPENAI_API_KEY`: missing until configured through the OpenAI Developers plugin workflow. Chat returns a clear 503 until available; it never simulates model replies.
+- `OPENAI_MODEL`: optional, defaults to `gpt-5-mini`.
+
+Oura credentials are entered by the signed-in owner on the private settings page, then encrypted in D1. Never commit secrets. No Oura authorization or production model calls are performed by automated tests.
+
+## Validation
+
+`node tests/oura.test.cjs`, `node tests/chat.test.cjs`, `node tests/dashboard.test.cjs`, and `npx tsc --noEmit`.
+
+The model receives bounded recent records plus monthly numeric statistics, 40 journal entries, manual profile context, and recent chat messages. Images are transient inputs and are not retained in chat history. High-resolution heart rate sync is limited to 7 days; daily datasets support 365 days. Background scheduling is not enabled.
+
+---
+
 # vinext-starter
 
 A clean full-stack starter running on [vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and Drizzle support.

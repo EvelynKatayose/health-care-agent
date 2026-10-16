@@ -1,0 +1,4 @@
+import {identity,json,failure,database,unseal} from '../../../lib/oura';
+import {healthData,RESOURCES} from '../../../lib/health';
+export async function GET(r:Request){try{const u=await identity(),q=new URL(r.url).searchParams;const resource=q.get('resource'),day=q.get('day');if(resource&&day){if(!(RESOURCES as readonly string[]).includes(resource)||!/^\d{4}-\d{2}-\d{2}$/.test(day))throw new Error('无效的数据类型或日期');const rows=await database().prepare('SELECT payload FROM health_records WHERE user_id=? AND resource=? AND record_day=? LIMIT 2000').bind(u,resource,day).all<{payload:string}>();return json({resource,day,records:await Promise.all(rows.results.map(async row=>JSON.parse(await unseal(row.payload,u))))});}const days=Number(q.get('days')||30);return json(await healthData(u,Math.min(365,Math.max(1,days||30))));}catch(e){return failure(e);}}
+export const dynamic='force-dynamic';
