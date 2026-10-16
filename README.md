@@ -12,9 +12,9 @@ Oura credentials are entered by the signed-in owner on the private settings page
 
 ## Validation
 
-`node tests/oura.test.cjs`, `node tests/chat.test.cjs`, `node tests/dashboard.test.cjs`, and `npx tsc --noEmit`.
+`node tests/oura.test.cjs`, `node tests/chat.test.cjs`, `node tests/dashboard.test.cjs`, `node tests/conversations.test.cjs`, and `npx tsc --noEmit`.
 
-The model receives bounded recent records plus monthly numeric statistics, 40 journal entries, manual profile context, and recent chat messages. Images are transient inputs and are not retained in chat history. High-resolution heart rate sync is limited to 7 days; daily datasets support 365 days. Background scheduling is not enabled.
+The model receives bounded recent records plus monthly numeric statistics, 40 journal entries, manual profile context, and the 48 most recent messages in the selected conversation. Conversation history is paginated, older legacy messages remain available, and each new conversation is isolated. Responses stream incrementally; incomplete stopped responses are not saved. Images are transient inputs and are not retained in chat history. High-resolution heart rate sync is limited to 7 days; daily datasets support 365 days. Background scheduling is not enabled.
 
 ---
 
