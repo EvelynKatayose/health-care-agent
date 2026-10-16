@@ -6,7 +6,14 @@ export function database(){const db=(env as unknown as {DB:D1Database}).DB;if(!d
 export function json(value:unknown,status=200){return Response.json(value,{status,headers:{'Cache-Control':'no-store','Referrer-Policy':'no-referrer'}});}
 export async function identity(){const u=await getChatGPTUser();if(!u)throw new Error('请先登录网站');return u.userId;}
 export function checkOrigin(r:Request){if(r.headers.get('origin')!==ORIGIN)throw new Error('请求来源不匹配，请从网站页面操作');}
-function b64(bytes:Uint8Array){return btoa(String.fromCharCode(...bytes));}
+function b64(bytes:Uint8Array){
+  // Bound the argument count independently of the synchronized payload size.
+  const chunks:string[]=[];
+  for(let offset=0;offset<bytes.length;offset+=8192){
+    chunks.push(String.fromCharCode(...bytes.subarray(offset,offset+8192)));
+  }
+  return btoa(chunks.join(''));
+}
 function un64(s:string){return Uint8Array.from(atob(s),c=>c.charCodeAt(0));}
 export function random(){return b64(crypto.getRandomValues(new Uint8Array(32))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');}
 async function key(){const raw=(env as unknown as {DATA_ENCRYPTION_KEY?:string}).DATA_ENCRYPTION_KEY;if(!raw)throw new Error('加密服务尚未配置');return crypto.subtle.importKey('raw',un64(raw),'AES-GCM',false,['encrypt','decrypt']);}
