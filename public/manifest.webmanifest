@@ -1,7 +1,7 @@
 {
   "id": "/health.html",
-  "name": "知己 · 你的健康与生活",
-  "short_name": "知己",
+  "name": "Health Care Agent",
+  "short_name": "Health Care Agent",
   "lang": "zh-CN",
   "start_url": "/health.html?source=homescreen",
   "scope": "/",

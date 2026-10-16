@@ -1,4 +1,4 @@
-# 知己 · 健康手记
+# Health Care Agent · 健康手记
 
 Private Oura dashboard with encrypted per-user health records, date-based metric views, trends, cloud journal, editable personal context and a server-side OpenAI Responses chat endpoint.
 

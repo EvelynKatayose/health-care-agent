@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "知己 · 健康手记",
+  title: "Health Care Agent · 健康手记",
   description: "结合 Oura 数据与日常生活的中文健康手记。",
   icons: {
     icon: "/favicon.svg",

@@ -5,3 +5,5 @@
 /* Keep standalone content clear of the iPhone status bar and home indicator. */
 @media(display-mode:standalone){body{padding-top:env(safe-area-inset-top,0px)}:root{--nav-space:calc(100px + env(safe-area-inset-top,0px))}.keyboard-open{--nav-space:env(safe-area-inset-top,0px)}}
 @media(display-mode:standalone) and (max-width:700px){:root{--nav-space:calc(91px + env(safe-area-inset-top,0px) + env(safe-area-inset-bottom,0px))}.keyboard-open{--nav-space:env(safe-area-inset-top,0px)}}
+
+.brand{letter-spacing:0}.brand small{white-space:nowrap}@media(max-width:700px){.brand{font-size:16px}.brand-mark{font-size:30px}.header-actions{gap:6px}.chat-identity h1{font-size:16px}}@media(max-width:360px){.brand{font-size:14px}.brand-mark{font-size:26px}.badge{font-size:10px}}
