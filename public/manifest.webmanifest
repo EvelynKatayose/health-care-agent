@@ -1,0 +1,25 @@
+{
+  "id": "/health.html",
+  "name": "知己 · 你的健康与生活",
+  "short_name": "知己",
+  "lang": "zh-CN",
+  "start_url": "/health.html?source=homescreen",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#faf8f5",
+  "theme_color": "#faf8f5",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
