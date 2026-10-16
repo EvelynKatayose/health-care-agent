@@ -1,0 +1,3 @@
+import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+export const connections = sqliteTable('oura_connections', { userId: text('user_id').primaryKey(), clientId: text('client_id').notNull(), secret: text('secret').notNull(), tokens: text('tokens'), expires: integer('expires').notNull().default(0), refreshLock: integer('refresh_lock').notNull().default(0), cache: text('cache'), syncedAt: text('synced_at') });
+export const oauthStates = sqliteTable('oauth_states', { state: text('state').primaryKey(), userId: text('user_id').notNull(), verifier: text('verifier').notNull(), expires: integer('expires').notNull() });
