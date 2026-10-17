@@ -144,3 +144,10 @@ The portable build runs Vinext directly without a host `timeout` command. The ma
 
 - [vinext Documentation](https://github.com/cloudflare/vinext)
 - [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+
+
+## Cycle and foreground updates
+
+Cycle records are stored in the encrypted journal table using a separate per-user, per-day ID namespace. GET/POST/DELETE /api/cycle supports independent reading, updates and deletion; no database migration is needed. The chat context includes up to 180 cycle records and the latest timestamped heart-rate sample. Calendar predictions require three actual start dates and are suppressed for variable or unsupported intervals; no ovulation prediction is made.
+
+Opening or returning to the app requests recent Oura data (7 days after the first sync). Manual sync retains the selected historical range. While visible, heart rate, daily stress and activity refresh every two minutes. Repeated foreground events are coalesced for 45 seconds, concurrent refreshes are blocked, and Oura Retry-After is honored. Pressure is presented as daily stress totals, never a real-time feed.
