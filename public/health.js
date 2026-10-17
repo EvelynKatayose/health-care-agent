@@ -47,7 +47,7 @@ async function syncHealth({automatic=false,live=false}={}){
     if(d.status==='ok'||d.status==='empty')good++;else failed++;
    }catch{failed++;processed++;}
    // Show the most recent samples first, without waiting for the historical resources.
-   if(processed===3&&!live)await loadHealth();
+   if(resource==='heartrate')await loadHealth();
   }
   await loadHealth();
   syncLabel(limited?'Oura 请求限流，已暂停自动同步':automatic&&document.hidden?'已暂停，回到 App 后继续更新':failed?'已更新 '+good+' 类 · '+failed+' 类未完整读取':'更新于 '+new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})+' · 打开自动同步',failed>0);
