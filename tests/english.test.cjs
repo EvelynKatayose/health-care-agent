@@ -1,0 +1,20 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),ts=require('typescript');
+const {javascript,html}=require('../scripts/build-english.cjs');
+const source=fs.readFileSync('public/health.js','utf8'),english=fs.readFileSync('public/health-en.js','utf8'),page=fs.readFileSync('public/health-en.html','utf8');
+assert.equal(javascript(source),english,'generated JS must match source');
+assert.equal(html(fs.readFileSync('public/health.html','utf8')),page,'generated HTML must match source');
+assert.match(page,/<html lang="en">/);assert.match(page,/href="\/health.html\?lang=zh"/);assert.match(page,/health-en.js/);
+assert.equal(/\p{Script=Han}/u.test(page.replace('中文','')),false,'all English UI copy must be translated');
+const ids=s=>[...s.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]).sort();assert.deepEqual(ids(page),ids(fs.readFileSync('public/health.html','utf8')));
+assert.match(english,/message:question,language:"en"/);assert.match(english,/JSON.stringify\(\{\.\.\.body,language:"en"\}\)/);
+assert.throws(()=>javascript("const a='遗漏的翻译';"),/Missing English translation/);
+const exported={};vm.runInNewContext(ts.transpileModule(fs.readFileSync('lib/chat-prompt.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports:exported});
+assert.match(exported.instructions('natural','en'),/^Reply in natural English/);
+assert.equal(exported.instructions('brief','zh').startsWith('Reply in natural English'),false);
+function language(path,query,saved){const data=new Map(saved?[['hca-language',saved]]:[]),result={};const location={href:'https://example.test'+path+query+'#chat',hash:'#chat',replace:url=>result.redirect=url};const link={addEventListener(){}};vm.runInNewContext(fs.readFileSync('public/health-language.js','utf8'),{URL,location,localStorage:{getItem:k=>data.get(k),setItem:(k,v)=>data.set(k,v)},document:{addEventListener:(_name,fn)=>fn(),getElementById:()=>link}});return {...result,language:data.get('hca-language'),hash:link.hash};}
+assert.match(language('/health.html','','en').redirect,/health-en.html#chat$/);
+assert.equal(language('/health.html','?lang=zh','en').redirect,undefined);
+assert.equal(language('/health.html','?lang=zh','en').language,'zh');
+assert.equal(language('/health-en.html','','zh').language,'en');
+assert.equal(language('/health-en.html','','zh').hash,'#chat');
+console.log('Passed: complete English UI, source parity, DOM IDs, language requests and prompts, stored language preference, explicit Chinese override and preserved view.');

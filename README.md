@@ -1,5 +1,11 @@
 # Health Care Agent · 健康手记
 
+## Interface languages
+
+Open `/health.html` for Chinese or `/health-en.html` for English. The header language switch preserves the current view, and the browser remembers your choice. Both interfaces use the same authenticated account, database and conversation history. Saved personal text stays in its original language. New English-interface chat requests and meal analyses request English output.
+
+English UI assets are generated from `public/health.html`, `public/health.js` and the reviewed dictionary in `scripts/english-translations.json`. Run `npm run ui:english` after changing copy. `npm run dev` and `npm run build` also regenerate them. The generator fails on untranslated Chinese UI strings. Do not edit generated `public/health-en.html` or `public/health-en.js` directly. Validate with `node tests/english.test.cjs` and `node tests/chat.test.cjs`.
+
 Private Oura dashboard with encrypted per-user health records, date-based metric views, trends, cloud journal, editable personal context and a server-side OpenAI Responses chat endpoint.
 
 ## Runtime configuration
