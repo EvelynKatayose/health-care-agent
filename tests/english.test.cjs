@@ -7,6 +7,7 @@ assert.match(page,/<html lang="en">/);assert.match(page,/href="\/health.html\?la
 assert.equal(/\p{Script=Han}/u.test(page.replace('中文','')),false,'all English UI copy must be translated');
 const ids=s=>[...s.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]).sort();assert.deepEqual(ids(page),ids(fs.readFileSync('public/health.html','utf8')));
 assert.match(english,/message:question,language:"en"/);assert.match(english,/JSON.stringify\(\{\.\.\.body,language:"en"\}\)/);
+assert.match(english,/average_breath'\)return n\+" breaths\/min"/);
 assert.throws(()=>javascript("const a='遗漏的翻译';"),/Missing English translation/);
 const exported={};vm.runInNewContext(ts.transpileModule(fs.readFileSync('lib/chat-prompt.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports:exported});
 assert.match(exported.instructions('natural','en'),/^Reply in natural English/);
