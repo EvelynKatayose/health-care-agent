@@ -1,6 +1,9 @@
 // Keep the chosen interface after opening from the Home Screen or OAuth callback.
 (()=>{
- const url=new URL(location.href),english=url.pathname==='/health-en.html';
+ const url=new URL(location.href);
+ // Static hosting removes .html; accept both forms to avoid a redirect loop.
+ const page=url.pathname.replace(/\/+$/,'').replace(/\.html$/,'');
+ const english=page==='/health-en';
  const explicit=url.searchParams.get('lang');
  try{
   if(explicit==='zh')localStorage.setItem('hca-language','zh');

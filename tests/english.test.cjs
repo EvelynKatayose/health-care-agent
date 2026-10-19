@@ -18,4 +18,26 @@ assert.equal(language('/health.html','?lang=zh','en').redirect,undefined);
 assert.equal(language('/health.html','?lang=zh','en').language,'zh');
 assert.equal(language('/health-en.html','','zh').language,'en');
 assert.equal(language('/health-en.html','','zh').hash,'#chat');
+// Production static hosting canonicalizes .html URLs to extensionless paths.
+// An English page must settle after that redirect instead of reloading forever.
+for(const path of ['/health-en','/health-en/','/health-en.html']){
+ for(const saved of ['zh','en',undefined]){
+  for(const query of ['','?lang=en']){
+   const result=language(path,query,saved);
+   assert.equal(result.redirect,undefined,`${path}${query} must not redirect`);
+   assert.equal(result.language,'en');
+   assert.equal(result.hash,'#chat');
+  }
+ }
+}
+for(const path of ['/health','/health.html']){
+ const first=language(path,'?source=homescreen','en');
+ const target=new URL(first.redirect);
+ assert.equal(target.searchParams.get('source'),'homescreen');
+ assert.equal(target.hash,'#chat');
+ const canonical=target.pathname.replace(/\.html$/,'');
+ assert.equal(language(canonical,target.search,'en').redirect,undefined,'canonical destination must settle');
+ assert.equal(language(path,'?lang=zh','en').language,'zh');
+ assert.equal(language(path,'?lang=zh','en').redirect,undefined);
+}
 console.log('Passed: complete English UI, source parity, DOM IDs, language requests and prompts, stored language preference, explicit Chinese override and preserved view.');
