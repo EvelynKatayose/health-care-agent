@@ -45,7 +45,7 @@ function html(source){
  }).replace(/(aria-label|title|alt|placeholder|data-prompt)="([^"]*)"/g,(all,attr,value)=>hasHan(value)?attr+'="'+escapeText(translate(value)).replace(/"/g,'&quot;')+'"':all)
  .replace('lang="zh-CN"','lang="en"')
  .replaceAll('/health.html','/health-en.html')
- .replace('/health.js?v=8','/health-en.js?v=1')
+ .replace('/health.js?v=9','/health-en.js?v=2')
  .replace('/manifest.webmanifest','/manifest-en.webmanifest')
  .replaceAll('href="/privacy/"','href="/privacy/en.html"')
  .replaceAll('href="/terms/"','href="/terms/en.html"')

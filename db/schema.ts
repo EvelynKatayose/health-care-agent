@@ -8,3 +8,4 @@ export const chatMessages = sqliteTable('chat_messages', {id:text('id').primaryK
 export const profiles = sqliteTable('health_profiles', {userId:text('user_id').primaryKey(),payload:text('payload').notNull()});
 
 export const chatThreads=sqliteTable('chat_threads',{id:text('id').primaryKey(),userId:text('user_id').notNull(),title:text('title').notNull(),createdAt:text('created_at').notNull(),updatedAt:text('updated_at').notNull()},table=>[index('thread_user_time_idx').on(table.userId,table.updatedAt)]);
+export const careRecords=sqliteTable('care_records',{id:text('id').primaryKey(),userId:text('user_id').notNull(),kind:text('kind').notNull(),day:text('day').notNull(),payload:text('payload').notNull(),updatedAt:text('updated_at').notNull()},table=>[index('care_user_kind_day_idx').on(table.userId,table.kind,table.day)]);

@@ -26,6 +26,16 @@ The model receives bounded recent records plus monthly numeric statistics, 40 jo
 
 # vinext-starter
 
+## Health Care Agent: daily care workspace
+
+The Summary page now includes a draggable health globe and swipeable care cards. Open **My care** for medication schedules/check-ins, a saved seven-day meal and movement plan, and dated personal-baseline observations. Chinese and English use the same `public/care.js` implementation with explicit localized copy; styles are in `public/care.css`.
+
+Medication schedules are user-entered. Browser reminders require notification permission and an open app. Calendar exports include explicit UTC alarms for the next 30 days, accounting for daylight-saving changes. The user must import the file and allow Calendar notifications; after changing or pausing a schedule, remove/update imported Calendar events too. There is no closed-app server push or continuous medical monitoring.
+
+The plan endpoint uses the existing server-side OpenAI configuration. It validates dates, excluded ingredients, nutrition consistency, session limits and durations before saving. Completion checkmarks are separate from actual intake/exercise logs. Trend observations require enough recent dated records and never imply diagnosis or a medical all-clear. Plans, medication details and logs are encrypted and scoped by account in the appended `care_records` migration. Chat receives selected care records as context.
+
+Run `node tests/care.test.cjs` and `node tests/care-ui.test.cjs` for the care workflow. The latter uses the existing ignored QA `linkedom` installation. Existing English/chat/dashboard tests remain applicable.
+
 A clean full-stack starter running on [vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and Drizzle support.
 
 ## Prerequisites

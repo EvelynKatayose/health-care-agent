@@ -5,7 +5,7 @@ export const CALLBACK=ORIGIN+'/oura/callback';
 export function database(){const db=(env as unknown as {DB:D1Database}).DB;if(!db)throw new Error('数据库尚未就绪');return db;}
 export function json(value:unknown,status=200){return Response.json(value,{status,headers:{'Cache-Control':'no-store','Referrer-Policy':'no-referrer'}});}
 export async function identity(){const u=await getChatGPTUser();if(!u)throw new Error('请先登录网站');return u.userId;}
-export function checkOrigin(r:Request){if(r.headers.get('origin')!==ORIGIN)throw new Error('请求来源不匹配，请从网站页面操作');}
+export function checkOrigin(r:Request){const origin=r.headers.get('origin');if(origin===ORIGIN)return;const url=new URL(r.url);if(['localhost','127.0.0.1','[::1]'].includes(url.hostname)&&origin===url.origin)return;throw new Error('请求来源不匹配，请从网站页面操作');}
 function b64(bytes:Uint8Array){
   // Bound the argument count independently of the synchronized payload size.
   const chunks:string[]=[];

@@ -1,0 +1,38 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),{parseHTML}=require('../.sites-runtime/qa/node_modules/linkedom');
+const tick=()=>new Promise(r=>setTimeout(r,15));
+async function run(english){
+ const {window}=parseHTML(fs.readFileSync(english?'public/health-en.html':'public/health.html','utf8')),{document}=window;
+ const selectProto=Object.getPrototypeOf(document.getElementById('range'));Object.defineProperty(selectProto,'value',{configurable:true,get(){return this.querySelector('option[selected]')?.getAttribute('value')||this.querySelector('option')?.getAttribute('value')||''},set(value){for(const option of this.querySelectorAll('option'))option.toggleAttribute('selected',option.getAttribute('value')===String(value));}});
+ window.HTMLElement.prototype.scrollBy=function(options){this.lastScroll=options.left;};
+ const storage=new Map(),requests=[];let spoken=null,view=null;
+ window.HealthCareBridge={view(id){view=id;for(const s of document.querySelectorAll('main>section'))s.hidden=s.id!==id;},prompt(text){spoken=text;}};
+ const today=new Date().toLocaleDateString('en-CA',{timeZone:'America/New_York'}),shift=n=>new Date(Date.parse(today)+n*86400000).toISOString().slice(0,10);
+ const medication={id:'med-fixture',name:'<img src=x onerror=alert(1)>',dose:'Existing instructions',notes:'Only a test',times:['08:00'],weekdays:[0,1,2,3,4,5,6],timeZone:'America/New_York',active:true};
+ const plan={id:'plan-fixture',createdAt:new Date().toISOString(),overview:'A real model result would go here.',source:'openai',preferences:{goal:'balance',equipment:'none',minutes:30,sessions:3,foodPreferences:'',avoidFoods:'peanut',constraints:'',calorieTarget:null,startDay:today,timeZone:'America/New_York',language:english?'en':'zh'},days:Array.from({length:7},(_,i)=>({date:shift(i),meals:Array.from({length:3},()=>({title:'Meal <script>alert(1)</script>',portion:'One bowl',ingredients:['rice','vegetables'],kcal:500,protein:30,carbs:50,fat:20})),workout:{title:'A walk',type:'walk',minutes:20,intensity:'easy',steps:['Walk comfortably']},note:'An estimate.'})),completed:[],evidence:{latestDay:today,signals:[]}};
+ const snap={today,timeZone:'America/New_York',settings:{sensitivity:'balanced'},medications:[medication],doses:[],schedule:[{...medication,medicationId:medication.id,day:today,time:'08:00',status:'due'}],plan:null,signals:[{id:'hrv:'+today,kind:'hrv',day:today,value:15,baseline:30,count:8,unit:'ms',source:'sleep.average_hrv',action:'gentle_day'}],alerts:[],coverage:{latestDay:today,syncedAt:new Date().toISOString()}};
+ snap.alerts=snap.signals.slice();
+ const fetch=async(url,options={})=>{const body=options.body?JSON.parse(options.body):null;requests.push({url,body,method:options.method});if(options.method==='POST'){
+  if(String(url).endsWith('/plan')){snap.plan=plan;return Response.json({plan});}
+  if(body.action==='dose'){snap.schedule[0].status=body.status;snap.doses=[{medicationId:medication.id,day:today,time:'08:00',status:body.status}];}
+  if(body.action==='complete')snap.plan.completed=body.done?[...snap.plan.completed,body.item]:snap.plan.completed.filter(x=>x!==body.item);
+  if(body.action==='medication'){const i=snap.medications.findIndex(m=>m.id===body.medication.id);if(i>=0)snap.medications[i]=body.medication;else snap.medications.push(body.medication);}
+  if(body.action==='settings')snap.settings.sensitivity=body.sensitivity;
+  if(body.action==='dismiss')snap.alerts=[];
+  return Response.json({ok:true});
+ }return Response.json(snap);};
+ const context={window,document,navigator:{},Intl,Date,Event:window.Event,fetch,Response,URL,Blob,crypto:require('node:crypto').webcrypto,setTimeout,clearTimeout,setInterval:()=>0,localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v)},confirm:()=>true,console};
+ vm.createContext(context);vm.runInContext(fs.readFileSync('public/care.js','utf8'),context);await tick();
+ assert.equal(document.querySelectorAll('.care-tile').length,3);assert.ok(document.querySelector('.care-hero'));assert.equal(document.querySelectorAll('.care-home img').length,0,'no untrusted name can create HTML');
+ document.querySelector('.care-tile').click();await tick();assert.equal(view,'care');assert.equal(document.getElementById('care-panel-medications').hidden,false);assert.ok(document.getElementById('care-panel-medications').textContent.includes(medication.name));assert.equal(document.querySelectorAll('#care-panel-medications img').length,0,'reminder HTML is escaped');
+ document.querySelector('[data-care="dose"]').click();await tick();await tick();assert.equal(snap.schedule[0].status,'taken');assert.ok(requests.some(r=>r.body?.action==='dose'));
+ document.querySelector('[data-care="new-plan"]').click();await tick();assert.ok(document.getElementById('care-plan-dialog').hasAttribute('open'));document.getElementById('care-duration').value='45';document.getElementById('care-duration').dispatchEvent(new window.Event('input'));assert.ok(document.getElementById('care-duration-value').textContent.includes('45'));
+ document.getElementById('care-plan-form').dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));await tick();await tick();assert.ok(snap.plan);assert.equal(document.querySelectorAll('.care-day').length,7);assert.equal(document.querySelectorAll('.care-meal').length,3);assert.equal(document.querySelectorAll('#care-panel-plan script').length,0,'plan copy is escaped');assert.equal(requests.find(r=>String(r.url).endsWith('/plan')).body.minutes,45);
+ document.querySelector('[data-care="complete"]').click();await tick();await tick();assert.equal(snap.plan.completed.length,1);document.querySelector('[data-care="day"][data-index="1"]').click();assert.ok(document.querySelector('[data-care="complete"]').disabled,'future plan day is not checkable');
+ document.querySelector('[data-care="ask-plan"]').click();assert.ok(spoken);document.querySelector('[data-care="tab"][data-pane="signals"]').click();assert.ok(document.querySelector('.care-evidence').textContent.includes('sleep.average_hrv'));
+ document.getElementById('care-sensitivity').value='2';await document.getElementById('care-sensitivity').onchange();await tick();assert.equal(snap.settings.sensitivity,'sensitive');
+ const globe=document.getElementById('care-stage');globe.onpointerdown({target:globe,clientX:100,pointerId:1});globe.onpointermove({clientX:200});globe.onpointerup();assert.ok(globe.querySelector('.care-planet').style.getPropertyValue('--orbit').includes('65'));
+ document.querySelector('[data-care="slide"][data-direction="1"]').click();assert.equal(document.getElementById('care-rail').lastScroll,280);
+ document.querySelector('[data-care="edit-med"]').click();assert.equal(document.getElementById('care-med-name').value,medication.name);document.querySelectorAll('[name="care-weekday"]').forEach(el=>el.checked=true);document.getElementById('care-med-name').value='Updated by user';document.getElementById('care-med-form').dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));await tick();await tick();assert.equal(snap.medications[0].name,'Updated by user');
+ if(english){const txt=document.getElementById('care-home').textContent+document.getElementById('care').textContent;assert.equal(/\p{Script=Han}/u.test(txt),false,'English care workspace is fully translated');}
+}
+(async()=>{await run(false);await run(true);console.log('Passed: Chinese/English care workspace; navigation, escaped data, medication check-in/edit, weekly plan generation/day selection/completion, sensitivity, globe drag and horizontal cards.');})().catch(e=>{console.error(e);process.exit(1)});
