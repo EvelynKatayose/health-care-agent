@@ -26,7 +26,7 @@ raw=fixture();raw.days[0].meals[0].ingredients=['peanut butter'];assert.throws((
  };}};}};
  let user='owner-A';const env={DB:db,DATA_ENCRYPTION_KEY:Buffer.alloc(32,18).toString('base64')};
  const ora=load('lib/oura.ts',{'cloudflare:workers':{env},'../app/chatgpt-auth':{getChatGPTUser:async()=>({userId:user})}});
- const store=load('lib/care-store.ts',{'./oura':ora,'./care-model':model,'./health':{healthData:async()=>({data:health,statuses:[],syncedAt:NOW}),encryptedRows:async()=>mood}});
+ const store=load('lib/care-store.ts',{'./oura':ora,'./care-model':model,'./sync-overview':load('lib/sync-overview.ts'),'./health':{healthData:async()=>({data:health,statuses:[],syncedAt:NOW}),encryptedRows:async()=>mood}});
  const route=load('app/api/care/route.ts',{'../../../lib/oura':ora,'../../../lib/care-model':model,'../../../lib/care-store':store});
  const request=(body,method='POST',origin=ora.ORIGIN)=>new Request(ora.ORIGIN+'/api/care',{method,headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify(body)});
  let r=await route.POST(request({action:'medication',medication:med}));assert.equal(r.status,200);assert.ok(!sqlite.prepare('SELECT payload FROM care_records').get().payload.includes(med.name),'medication data encrypted at rest');

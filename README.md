@@ -28,7 +28,9 @@ The model receives bounded recent records plus monthly numeric statistics, 40 jo
 
 ## Health Care Agent: daily care workspace
 
-The Summary page now includes a draggable health globe and swipeable care cards. Open **My care** for medication schedules/check-ins, a saved seven-day meal and movement plan, and dated personal-baseline observations. Chinese and English use the same `public/care.js` implementation with explicit localized copy; styles are in `public/care.css`.
+The Summary page includes a minimal health control panel with actual seven-day score scrubbing, metric switching, cloud-sync diagnostics and swipeable care cards. Open **My care** for medication schedules/check-ins, a saved seven-day meal and movement plan, and dated personal-baseline observations. Chinese and English share `public/care.js`; styling is in `public/care.css` and `public/controls.css`.
+
+Cycle Insights period history/phases/predictions are absent from Oura's current public API definition (`openapi-1.42.json`). The cycle calendar uses user-confirmed entries. The cycle source panel shows recognized explicit public period tags separately, including legacy tags when available; a tag is never silently treated as a confirmed menstrual start. Tag records use `start_day`, not the request-range start, and are refreshed alongside the cycle source panel. `lib/sync-overview.ts` separates API-check timestamps from actual measurement timestamps. This app cannot force Bluetooth syncing or a phone-to-cloud backup.
 
 Medication schedules are user-entered. Browser reminders require notification permission and an open app. Calendar exports include explicit UTC alarms for the next 30 days, accounting for daylight-saving changes. The user must import the file and allow Calendar notifications; after changing or pausing a schedule, remove/update imported Calendar events too. There is no closed-app server push or continuous medical monitoring.
 

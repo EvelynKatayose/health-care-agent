@@ -1,7 +1,7 @@
 'use strict';
 const $=id=>document.getElementById(id),set=(id,t)=>$(id).textContent=t;
-const names={daily_sleep:'睡眠评分',daily_readiness:'恢复状态',sleep:'睡眠详情',daily_activity:'活动与消耗',daily_stress:'白天压力',daily_resilience:'长期恢复力',daily_spo2:'血氧',daily_cardiovascular_age:'心血管年龄',vO2_max:'有氧能力',workout:'运动记录',sleep_time:'建议就寝时间',session:'放松与呼吸练习',enhanced_tag:'生活标签',heartrate:'分钟级心率'};
-const groups={sleep:['daily_sleep','sleep','sleep_time','daily_spo2'],recovery:['daily_readiness','daily_stress','daily_resilience','session','enhanced_tag'],activity:['daily_activity','workout'],heart:['daily_cardiovascular_age','vO2_max','heartrate']};
+const names={daily_sleep:'睡眠评分',daily_readiness:'恢复状态',sleep:'睡眠详情',daily_activity:'活动与消耗',daily_stress:'白天压力',daily_resilience:'长期恢复力',daily_spo2:'血氧',daily_cardiovascular_age:'心血管年龄',vO2_max:'有氧能力',workout:'运动记录',sleep_time:'建议就寝时间',session:'放松与呼吸练习',enhanced_tag:'生活标签',tag:'旧版标签',heartrate:'分钟级心率'};
+const groups={sleep:['daily_sleep','sleep','sleep_time','daily_spo2'],recovery:['daily_readiness','daily_stress','daily_resilience','session','enhanced_tag','tag'],activity:['daily_activity','workout'],heart:['daily_cardiovascular_age','vO2_max','heartrate']};
 const fieldNames={day:'日期',timestamp:'测量时间',score:'评分',average_breath:'平均呼吸频率',average_heart_rate:'夜间平均心率',average_hrv:'平均 HRV',awake_time:'清醒时间',bedtime_end:'起床时间',bedtime_start:'入睡时间',deep_sleep_duration:'深睡时间',efficiency:'睡眠效率',latency:'入睡用时',light_sleep_duration:'浅睡时间',lowest_heart_rate:'最低心率',rem_sleep_duration:'REM 睡眠',restless_periods:'不安稳次数',time_in_bed:'卧床时间',total_sleep_duration:'总睡眠时间',type:'类型',contributors:'评分构成',temperature_deviation:'体温偏离个人基线',temperature_trend_deviation:'体温趋势偏离',active_calories:'活动消耗',total_calories:'总能量消耗估计',target_calories:'活动消耗目标',steps:'步数',equivalent_walking_distance:'等效步行距离',meters_to_target:'距活动目标',target_meters:'活动距离目标',high_activity_time:'高强度活动时间',medium_activity_time:'中等强度活动时间',low_activity_time:'低强度活动时间',sedentary_time:'久坐时间',resting_time:'休息时间',non_wear_time:'未佩戴时间',inactivity_alerts:'久坐提醒次数',average_met_minutes:'平均代谢当量',stress_high:'高压力时间',recovery_high:'高恢复时间',day_summary:'当天压力概况',level:'恢复力水平',spo2_percentage:'血氧饱和度',average:'平均值',breathing_disturbance_index:'呼吸扰动指数',vascular_age:'血管年龄估计',pulse_wave_velocity:'脉搏波速度',vo2_max:'最大摄氧量估计',activity:'运动类型',calories:'运动消耗',distance:'运动距离',end_datetime:'结束时间',start_datetime:'开始时间',intensity:'强度',label:'备注',source:'来源',optimal_bedtime:'适宜就寝时间',recommendation:'建议',status:'状态',total_sleep:'总睡眠贡献',deep_sleep:'深睡贡献',rem_sleep:'REM 贡献',restfulness:'安稳程度',timing:'睡眠时机',hrv_balance:'HRV 平衡',previous_night:'前晚睡眠贡献',recovery_index:'恢复指数',resting_heart_rate:'静息心率贡献',sleep_balance:'睡眠平衡',body_temperature:'体温贡献',activity_balance:'活动平衡',previous_day_activity:'前日活动贡献',meet_daily_targets:'达成每日目标',move_every_hour:'每小时活动',recovery_time:'恢复时间',stay_active:'保持活跃',training_frequency:'训练频率',training_volume:'训练量',sleep_recovery:'睡眠恢复',daytime_recovery:'白天恢复',stress:'压力',text:'文字',tag_type_code:'标签代码',comment:'说明',bpm:'心率',low_battery_alert:'低电量提示'};
 const durationFields=new Set(['awake_time','deep_sleep_duration','latency','light_sleep_duration','rem_sleep_duration','time_in_bed','total_sleep_duration','high_activity_time','medium_activity_time','low_activity_time','sedentary_time','resting_time','non_wear_time','stress_high','recovery_high']);
 const enumNames={long_sleep:'主要睡眠',late_nap:'晚间小睡',sleep:'睡眠',rest:'休息',awake:'清醒',low:'低',moderate:'中等',high:'高',strong:'较强',solid:'稳定',adequate:'尚可',limited:'有限',exceptional:'很好',restored:'恢复较好',stressful:'压力较高',normal:'正常',balanced:'平衡'};
@@ -10,7 +10,7 @@ function view(id){document.body.classList.toggle('cycle-mode',id==='cycle');docu
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>view(b.dataset.view));
 async function request(path,method='GET',body){const r=await fetch('/api/'+path,{method,headers:body!==undefined?{'Content-Type':'application/json'}:{},body:body!==undefined?JSON.stringify(body):undefined});if(!r.headers.get('content-type')?.includes('application/json'))throw new Error('请重新登录网站后重试。');const d=await r.json();if(!r.ok)throw new Error(d.error||'请求未完成');return d;}
 function download(value,name){const url=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);}
-function dayOf(row){return String(row.day||row.timestamp||row.start_datetime||'').slice(0,10);}
+function dayOf(row){return String(row.day||row.start_day||row.timestamp||row.start_datetime||row.start_time||'').slice(0,10);}
 function records(type,day=$('day').value){return (state.data[type]||[]).filter(r=>dayOf(r)===day);}
 function sample(type,day){const rows=records(type,day);return type==='sleep'?(rows.find(r=>r.type==='long_sleep')||rows[0]):rows[0];}
 function duration(seconds){if(!Number.isFinite(seconds))return '—';const mins=Math.round(seconds/60);return mins>=60?Math.floor(mins/60)+' 小时 '+mins%60+' 分':mins+' 分钟';}
@@ -24,33 +24,34 @@ function renderCoverage(){const box=$('coverage');box.replaceChildren();for(cons
 function datum(label,text){const e=document.createElement('div');e.className='datum';const a=document.createElement('span');a.textContent=label;const b=document.createElement('span');b.textContent=text;e.append(a,b);return e;}
 function fields(container,record){const list=document.createElement('div');list.className='detail-grid';for(const [key,value] of Object.entries(record)){if(['id','ring_id','sleep_algorithm_version','period'].includes(key)||value==null)continue;if(value&&typeof value==='object'&&!Array.isArray(value)){const detail=document.createElement('details');const summary=document.createElement('summary');summary.textContent=fieldNames[key]||key;detail.append(summary);fields(detail,value);list.append(detail);}else list.append(datum(fieldNames[key]||key,format(key,value)));}container.append(list);}
 function renderData(){const box=$('data-panels');box.replaceChildren();for(const type of Object.keys(names)){if(selectedGroup!=='all'&&!groups[selectedGroup].includes(type))continue;const panel=document.createElement('article');panel.className='card';const detail=document.createElement('details');const summary=document.createElement('summary');summary.className='data-panel-summary';const title=document.createElement('h2');title.textContent=names[type];const rows=records(type),hint=document.createElement('small');hint.textContent=rows.length?(rows[0].score!=null?rows[0].score+' 分':rows.length+' 条记录'):'暂无记录';summary.append(title,hint);detail.append(summary);if(!rows.length){const p=document.createElement('p');p.className='muted';p.textContent=statusFor(type)?.detail||'这一天还没有记录，可以先同步看看。';detail.append(p);}else if(type==='heartrate'){const values=rows.map(r=>r.bpm).filter(Number.isFinite);detail.append(datum('测量条数',String(rows.length)));if(values.length){let min=Infinity,max=-Infinity,total=0;for(const v of values){min=Math.min(min,v);max=Math.max(max,v);total+=v;}detail.append(datum('心率范围',min+'–'+max+' 次/分'),datum('样本平均',(total/values.length).toFixed(1)+' 次/分'));}const p=document.createElement('p');p.className='muted';p.textContent='这些样本来自不同测量场景，不等同于静息心率。';detail.append(p);}else for(const [i,r] of rows.entries()){if(rows.length>1){const sub=document.createElement('h3');sub.textContent='记录 '+(i+1);detail.append(sub);}fields(detail,r);}const ask=document.createElement('button');ask.className='text-button';ask.textContent='让Health Care Agent解释一下 ↗';ask.onclick=()=>promptChat('我想了解 '+$('day').value+' 的'+names[type]+'，有什么值得我注意的？先说重点就好。');detail.append(ask);panel.append(detail);box.append(panel);}}
-async function loadHealth(){state=await request('health?days='+$('range').value);const days=[...new Set(Object.values(state.data).flat().map(dayOf).filter(Boolean))].sort();if(!$('day').value)$('day').value=(state.data.daily_sleep||[]).map(dayOf).sort().at(-1)||days.at(-1)||new Date().toLocaleDateString('en-CA');renderSnapshot();chart();renderCoverage();renderData();renderLatest();window.HealthCare?.refresh();set('global-status',(state.syncedAt?'最近同步：'+new Date(state.syncedAt).toLocaleString('zh-CN'):'尚未同步数据')+(state.limitReached?' · 部分记录超出显示上限，请缩短范围':''));}
+async function loadHealth(){state=await request('health?days='+$('range').value);const days=[...new Set(Object.values(state.data).flat().map(dayOf).filter(Boolean))].sort();if(!$('day').value)$('day').value=(state.data.daily_sleep||[]).map(dayOf).sort().at(-1)||days.at(-1)||new Date().toLocaleDateString('en-CA');renderSnapshot();chart();renderCoverage();renderData();renderLatest();window.HealthCare?.refresh();set('global-status',(state.syncedAt?'最近接口检查：'+new Date(state.syncedAt).toLocaleString('zh-CN'):'尚未同步数据')+(state.limitReached?' · 部分记录超出显示上限，请缩短范围':''));}
 $('day').onchange=()=>{renderSnapshot();renderData();};$('range').onchange=()=>loadHealth().catch(e=>set('global-status',e.message));$('trend-metric').onchange=chart;
 chartMetrics.forEach(([name,,,unit],i)=>{const o=document.createElement('option');o.value=i;o.textContent=name+' · '+unit;$('trend-metric').append(o);});for(const [key,name] of Object.entries(names)){const o=document.createElement('option');o.value=key;o.textContent=name;$('raw-resource').append(o);}
 document.querySelectorAll('[data-group]').forEach(b=>b.onclick=()=>{selectedGroup=b.dataset.group;document.querySelectorAll('[data-group]').forEach(x=>x.classList.toggle('selected',x===b));renderData();});
 let lastAutoSync=-Infinity,syncRetryAt=0,autoReady=false,refreshTimer=null;
 try{syncRetryAt=Number(localStorage.getItem('hca-sync-retry-at'))||0;}catch{}
 function syncLabel(text,issue=false){set('auto-sync-status',text);$('sync-dot').classList.toggle('working',busy);$('sync-dot').classList.toggle('issue',issue);}
-async function syncHealth({automatic=false,live=false}={}){
+async function syncHealth({automatic=false,live=false,cycleOnly=false}={}){
  if(busy||!connected||document.hidden&&automatic)return;
  if(Date.now()<syncRetryAt){syncLabel('Oura 暂时限流，'+new Date(syncRetryAt).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})+' 后再试',true);return;}
  if(automatic&&Date.now()-lastAutoSync<45000)return;
  busy=true;lastAutoSync=Date.now();$('sync').disabled=true;$('refresh-latest').disabled=true;
- const resources=live?['heartrate','daily_stress','daily_activity']:['heartrate','daily_stress','daily_activity',...Object.keys(names).filter(r=>!['heartrate','daily_stress','daily_activity'].includes(r))];
+ const priority=['heartrate','enhanced_tag','tag','daily_stress','daily_activity'];
+ const resources=cycleOnly?['enhanced_tag','tag']:live?priority:[...priority,...Object.keys(names).filter(r=>!priority.includes(r))];
  let good=0,failed=0,limited=false,processed=0;
  try{
   for(const resource of resources){
    if(automatic&&document.hidden)break;
    syncLabel((automatic?'自动更新':'正在同步')+' · '+names[resource]);
-   try{const d=await request('oura/sync','POST',{resource,days:automatic&&state.syncedAt?7:Number($('range').value)});processed++;
+   try{const d=await request('oura/sync','POST',{resource,days:cycleOnly?365:automatic&&['enhanced_tag','tag'].includes(resource)?90:automatic&&state.syncedAt?7:Number($('range').value)});processed++;
     if(d.status==='rate_limited'){syncRetryAt=Date.now()+(d.retryAfterSeconds||300)*1000;try{localStorage.setItem('hca-sync-retry-at',String(syncRetryAt));}catch{}failed++;limited=true;break;}
     if(d.status==='ok'||d.status==='empty')good++;else failed++;
    }catch{failed++;processed++;}
    // Show the most recent samples first, without waiting for the historical resources.
    if(resource==='heartrate')await loadHealth();
   }
-  await loadHealth();
-  syncLabel(limited?'Oura 请求限流，已暂停自动同步':automatic&&document.hidden?'已暂停，回到 App 后继续更新':failed?'已更新 '+good+' 类 · '+failed+' 类未完整读取':'更新于 '+new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})+' · 打开自动同步',failed>0);
+  await Promise.all([loadHealth(),loadCycles()]);
+  syncLabel(limited?'Oura 请求限流，已暂停自动同步':automatic&&document.hidden?'已暂停，回到 App 后继续更新':failed?'已更新 '+good+' 类 · '+failed+' 类未完整读取':'检查于 '+new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})+' · 打开自动检查',failed>0);
   set('global-status',limited?'部分数据尚未更新，稍后会再试。':failed?'部分指标暂不可用，详情见数据覆盖。':'');
  }catch(e){syncLabel('暂未更新 · '+e.message,true);}finally{busy=false;$('sync').disabled=!connected;$('refresh-latest').disabled=!connected;$('sync-dot').classList.remove('working');}
 }
@@ -138,13 +139,14 @@ function openLatest(type){
  set('metric-comparison',heart?'最近上传的心率样本，不等同于静息心率。':'高压力累计时间 · Oura 每日汇总');$('metric-chart').replaceChildren();$('metric-detail').replaceChildren();
  if(heart){heartPlot($('metric-chart'),rows,true);if(last){$('metric-detail').append(datum('最新测量时间',measurementTime(last.timestamp)),datum('样本年龄',sampleAge(last.timestamp)),datum('测量场景',enumNames[last.source]||last.source||'Oura 样本'));const first=rows.find(r=>Date.parse(r.timestamp)>=Date.parse(last.timestamp)-6*3600000);if(first)$('metric-detail').append(datum('图表时间范围',measurementTime(first.timestamp)+' — '+measurementTime(last.timestamp)));}}
  else if(stress){fields($('metric-detail'),stress);const status=statusFor('daily_stress');if(status)$('metric-detail').append(datum('接口读取时间',measurementTime(status.updated_at)));}
+ if(heart&&statusFor('heartrate')?.updated_at)$('metric-detail').append(datum('接口读取时间',measurementTime(statusFor('heartrate').updated_at)));
  const note=document.createElement('p');note.className='live-detail-note';note.textContent=heart?'App 打开时自动更新，停留期间每 2 分钟请求云端数据。网页无法直接读取戒指蓝牙，也不能触发戒指测量；数据取决于 Oura App 上传。':'Oura 公开接口提供每日压力和恢复汇总，没有开放 App 内的实时压力曲线。这里不会把昨日汇总当成当前压力。';$('metric-detail').append(note);
  $('metric-ask').onclick=()=>{closeDialog('metric-dialog');promptChat(heart?'帮我看看最新上传的心率，注意测量时间和场景，先直白说重点。':'结合最新的压力每日汇总和我的生活记录，先说一个值得注意的变化。请区分日期，不要当成此刻压力。');};openDialog('metric-dialog');
 }
 let cycleEntries=[],cycleMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1);
 const flowLabels={none:'无出血',spotting:'点滴',light:'少量',medium:'中等',heavy:'较多'};
 const symptomLabels={cramps:'腹痛',headache:'头痛',bloating:'腹胀',breast_tenderness:'乳房胀痛',fatigue:'疲倦',low_mood:'情绪低落',appetite_change:'食欲变化',acne:'痘痘'};
-async function loadCycles(){const d=await request('cycle');cycleEntries=d.entries;renderCycle();}
+async function loadCycles(){const d=await request('cycle');cycleEntries=d.entries;renderCycle();window.CycleSync?.update(d.oura);}
 function renderCycle(){
  const summary=CycleModel.summary(cycleEntries,localDay());
  set('cycle-home-title',summary.day?'周期第 '+summary.day+' 天':'认识自己的节奏');set('cycle-home-detail',summary.last?'上次开始 '+summary.last+' · 点此记录今天':'记录经期、症状与身体变化');
@@ -195,4 +197,4 @@ async function loadReport(){const version=++reportRequest,period=reportPeriod;se
 
 async function init(){setupExperience();setupCycleUI();setupFoodUI();setupAutoSync();const id=location.hash.slice(1);if(['overview','data','chat','journal','cycle','food','reports','settings','care'].includes(id))view(id);const results=await Promise.allSettled([loadConnection(),loadHealth(),loadChat(),loadNotes(),loadCycles(),request('profile').then(d=>$('profile').value=d.text||'')]);const failures=results.filter(r=>r.status==='rejected');if(failures.length)set('global-status',[...new Set(failures.map(r=>r.reason.message))].join('；'));autoReady=true;if(connected)syncHealth({automatic:true});}init();
 
-window.HealthCareBridge={view,prompt:promptChat};
+window.HealthCareBridge={view,prompt:promptChat,selectDate:chooseDay,refreshCycle:loadCycles,openCycle:openCycleEntry,sync:options=>{if(busy)return Promise.reject(Error('请等待当前同步完成'));if(!connected)return Promise.reject(Error('请先连接 Oura'));return syncHealth(options);}};
