@@ -1,4 +1,12 @@
-# Health Care Agent · 健康手记
+# Health Care Agent
+
+A mobile-first personal health companion that brings Oura records, meal tracking, mood journals, conversations, and daily care plans together.
+
+**[Open the public interactive demo](https://evelyn-health-companion.fun-badge-4372.chatgpt.site/demo.html)**
+
+[Open the private workspace (owner sign-in required)](https://evelyn-health-companion.fun-badge-4372.chatgpt.site/health-en.html)
+
+The public demo is available without signing in and uses fictional data. Personal health records, saved conversations, and live model features remain restricted to the owner.
 
 ## Public preview and private workspace
 
