@@ -1,0 +1,8 @@
+/* Shared reading surface for the privacy and terms pages. */
+body { width: auto; max-width: 780px; margin: 0 auto; padding: 70px 32px 90px; font-family: var(--ui-font); font-size: 16px; line-height: 1.7; }
+h1 { font-size: 40px; line-height: 1.1; font-weight: 750; letter-spacing: -.045em; margin: 0 0 30px; }
+h2 { font-size: 24px; font-weight: 700; margin: 36px 0 14px; }
+p { font-size: 16px; line-height: 1.8; margin: 16px 0; color: var(--muted); }
+a { color: var(--accent-dark); text-decoration: none; }
+body>a:last-child { display: inline-flex; align-items: center; margin-top: 30px; padding: 12px 20px; min-height: 44px; background: var(--surface); border: 1px solid var(--line); border-radius: 50px; font-weight: 600; font-size: 14px; }
+@media(max-width:700px) { body { padding: 45px 24px 70px; }h1 { font-size: 34px; }h2 { font-size: 22px; } }

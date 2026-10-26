@@ -6,8 +6,8 @@
   "start_url": "/health-en.html?source=homescreen",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#f2f2f7",
-  "theme_color": "#f2f2f7",
+  "background_color": "#f5f5fa",
+  "theme_color": "#f5f5fa",
   "icons": [
     {
       "src": "/icons/icon-192.png",
