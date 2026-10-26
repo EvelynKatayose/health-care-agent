@@ -1,5 +1,9 @@
 # Health Care Agent · 健康手记
 
+## Public preview and private workspace
+
+`/demo.html` is an anonymous interactive preview with clearly labeled fictional scores, a deterministic sample-serving nutrition calculator, and a local routine checklist. It does not call private APIs, wearable services or a model, and it does not persist data. It is not a live AI analysis. The root redirects anonymous/non-owner visitors here; the owner can still open the existing workspace. Before making hosting public, configure the server-only `HEALTH_APP_OWNER_EMAIL` to the verified owner's sign-in email. All health/model/MCP data operations call `identity()`, which rejects other signed-in users when this guard is configured. This prevents public visitors from viewing personal records or spending the owner's model quota. Keep the encryption key unchanged. `node tests/public-preview.test.cjs` checks the guard and preview interactions.
+
 ## Interface languages
 
 Open `/health.html` for Chinese or `/health-en.html` for English. The header language switch preserves the current view, and the browser remembers your choice. Both interfaces use the same authenticated account, database and conversation history. Saved personal text stays in its original language. New English-interface chat requests and meal analyses request English output.

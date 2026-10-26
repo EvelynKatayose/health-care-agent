@@ -4,7 +4,7 @@ export const ORIGIN='https://evelyn-health-companion.fun-badge-4372.chatgpt.site
 export const CALLBACK=ORIGIN+'/oura/callback';
 export function database(){const db=(env as unknown as {DB:D1Database}).DB;if(!db)throw new Error('数据库尚未就绪');return db;}
 export function json(value:unknown,status=200){return Response.json(value,{status,headers:{'Cache-Control':'no-store','Referrer-Policy':'no-referrer'}});}
-export async function identity(){const u=await getChatGPTUser();if(!u)throw new Error('请先登录网站');return u.userId;}
+export async function identity(){const u=await getChatGPTUser();if(!u)throw new Error('请先登录网站');const owner=(env as unknown as {HEALTH_APP_OWNER_EMAIL?:string}).HEALTH_APP_OWNER_EMAIL?.trim().toLowerCase();if(owner&&u.email?.trim().toLowerCase()!==owner)throw new Error('This is a private health workspace. The public preview does not provide account access.');return u.userId;}
 export function checkOrigin(r:Request){const origin=r.headers.get('origin');if(origin===ORIGIN)return;const url=new URL(r.url);if(['localhost','127.0.0.1','[::1]'].includes(url.hostname)&&origin===url.origin)return;throw new Error('请求来源不匹配，请从网站页面操作');}
 function b64(bytes:Uint8Array){
   // Bound the argument count independently of the synchronized payload size.
